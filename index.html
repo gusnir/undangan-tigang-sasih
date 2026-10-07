@@ -50,7 +50,15 @@ a.btn{display:inline-block;margin-top:12px;padding:11px 24px;border-radius:30px;
 <button id="mus" aria-label="Putar musik">&#9835;</button>
 <script>
 (function(){var a=document.getElementById('bgm'),b=document.getElementById('mus');
-fetch('musik.mp3',{method:'HEAD'}).then(function(r){if(r.ok)b.style.display='block'}).catch(function(){});
-b.onclick=function(){if(a.paused){a.play().then(function(){b.classList.add('on')}).catch(function(){})}else{a.pause();b.classList.remove('on')}};
+a.preload='auto';
+function on(){b.classList.add('on')}
+function off(){b.classList.remove('on')}
+function start(){var p=a.play();if(p&&p.then){p.then(function(){on();unbind()}).catch(function(){})}}
+var ev=['pointerdown','touchstart','click','keydown','scroll'];
+function bind(){ev.forEach(function(e){window.addEventListener(e,start,{passive:true})})}
+function unbind(){ev.forEach(function(e){window.removeEventListener(e,start)})}
+fetch('musik.mp3',{method:'HEAD'}).then(function(r){if(r.ok){b.style.display='block';start();bind()}}).catch(function(){});
+b.onclick=function(e){e.stopPropagation();if(a.paused){a.play().then(on).catch(function(){})}else{a.pause();off();unbind()}};
+a.addEventListener('play',on);a.addEventListener('pause',off);
 })();
 </script></body></html>
